@@ -1,0 +1,22 @@
+# 로컬 도구·인증·캐시 (공개 금지)
+.venv/
+.wrangler/
+.claude/
+.env
+.env.*
+*.pem
+*.key
+
+# 큰 모델 가중치와 중간 산출물 (스크립트로 다시 만들 수 있음)
+models/
+data/
+logs/
+
+# 이전 룰렛 버전 (현재 앱은 app/)
+web/
+site/
+dist/
+build_site.py
+
+__pycache__/
+*.pyc

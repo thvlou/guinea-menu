@@ -1,0 +1,411 @@
+/* 다먹을기니? — Figma 'CU / Flow' 섹션 구현.
+   모든 좌표·크기는 Figma 프레임(390×844, iPhone 13 & 14) 기준 px 그대로이고,
+   .stage 전체를 화면에 맞게 비율 그대로 확대·축소해 반응형으로 맞춘다. */
+
+@font-face {
+  font-family: "LOTTERIACHAB";
+  src: url("../assets/fonts/LOTTERIACHAB.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --bg: #f6f660;
+  --ink: #544811;
+  --ink-sub: #8a7b37;
+  --font: "LOTTERIACHAB", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+h1, h2, p { margin: 0; font-weight: 400; }
+img { -webkit-user-drag: none; user-select: none; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- 무대: 390×844를 화면에 맞춰 비율 그대로 ---------- */
+/* 화면 밖으로 나가는 원형 배경·컨페티가 페이지 폭을 넓히지 않도록 고정 틀에서 자른다 */
+.frame { position: fixed; inset: 0; overflow: hidden; }
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 390px;
+  height: 844px;
+  transform: translate(-50%, -50%) scale(var(--s, 1));
+}
+html.is-loading .stage { visibility: hidden; }
+
+.screen {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .5s var(--ease-out), visibility 0s linear .5s;
+}
+.screen.is-active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity .5s var(--ease-out), visibility 0s;
+}
+
+/* ---------- Splash ---------- */
+.splash { cursor: pointer; }
+.splash-text {
+  position: absolute;
+  left: 6px;
+  top: 347px;
+  width: 378px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  line-height: normal;
+}
+.splash-title { width: 100%; font-size: 70px; text-align: center; white-space: nowrap; color: var(--ink); }
+.splash-cta { width: 100%; font-size: 20px; text-align: center; color: var(--ink); animation: cta-breathe 2.4s ease-in-out infinite; }
+@keyframes cta-breathe { 50% { opacity: .55; } }
+
+.blob { position: absolute; width: 495px; height: 495px; pointer-events: none; will-change: transform; }
+.blob img { position: absolute; inset: -12.12%; width: 124.24%; height: 124.24%; max-width: none; display: block; will-change: filter; }
+.blob-top { left: -184px; top: -234px; animation: blob-a 21s ease-in-out infinite; }
+.blob-bottom { left: 136px; top: 608px; animation: blob-b 26s ease-in-out infinite; }
+.blob-top img { animation: pastel-a 13s ease-in-out infinite; }
+.blob-bottom img { animation: pastel-b 17s ease-in-out infinite; }
+
+/* 원형 배경이 화면 곳곳을 자유롭게 떠다닌다 */
+@keyframes blob-a {
+  0%   { transform: translate(0, 0) scale(1); }
+  20%  { transform: translate(150px, 110px) scale(1.12); }
+  40%  { transform: translate(40px, 330px) scale(.9); }
+  60%  { transform: translate(-60px, 190px) scale(1.08); }
+  80%  { transform: translate(110px, -20px) scale(.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes blob-b {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(-170px, -150px) scale(1.1); }
+  50%  { transform: translate(-80px, -360px) scale(.92); }
+  75%  { transform: translate(30px, -170px) scale(1.06); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+/* 딤 처리된 원의 색이 파스텔 톤으로 천천히 바뀌며 그라데이션이 살아 움직인다 */
+@keyframes pastel-a {
+  0%, 100% { filter: hue-rotate(0deg) saturate(1); }
+  33%      { filter: hue-rotate(45deg) saturate(1.2); }
+  66%      { filter: hue-rotate(-35deg) saturate(1.15); }
+}
+@keyframes pastel-b {
+  0%, 100% { filter: hue-rotate(0deg) saturate(1); }
+  30%      { filter: hue-rotate(-40deg) saturate(1.2); }
+  70%      { filter: hue-rotate(45deg) saturate(1.1); }
+}
+
+.splash.is-leaving .splash-text { animation: splash-out .45s var(--ease-out) forwards; }
+@keyframes splash-out { to { opacity: 0; transform: scale(1.08); } }
+
+/* ---------- Onboarding ---------- */
+.onboarding { cursor: pointer; }
+.ob-step { position: absolute; inset: 0; visibility: hidden; }
+.ob-step.is-active { visibility: visible; }
+
+.ob-copy {
+  position: absolute;
+  left: 20px;
+  top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  line-height: normal;
+}
+.ob-step[data-step="1"] .ob-copy { width: 259px; }
+.ob-title { font-size: 46px; color: var(--ink); white-space: nowrap; }
+.ob-desc { font-size: 18px; color: var(--ink-sub); white-space: nowrap; }
+
+.ob-pig { position: absolute; display: block; object-fit: cover; }
+.ob-step[data-step="1"] .ob-pig,
+.ob-step[data-step="2"] .ob-pig { left: -36px; top: 388px; width: 326px; height: 326px; }
+.ob-step[data-step="3"] .ob-pig { left: -6px; top: 394px; width: 320px; height: 320px; }
+
+.ob-bubble {
+  position: absolute;
+  left: 194px;
+  top: 260px;
+  width: 176px;
+  height: 134.872px;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, .06));
+  transform-origin: 36px 128px; /* 말풍선 꼬리 끝 */
+}
+.ob-bubble img { position: absolute; left: 0; top: 0; width: 177px; height: 128.557px; display: block; }
+.ob-bubble p {
+  position: absolute;
+  left: 19px;
+  top: 46px;
+  width: 138px;
+  font-size: 20px;
+  line-height: normal;
+  text-align: center;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.ob-bubble p span { display: inline-block; opacity: 0; white-space: pre; }
+
+.ob-progress { position: absolute; left: 170px; top: 770px; width: 50px; height: 14px; }
+.ob-progress img { position: absolute; inset: 0; display: block; opacity: 0; transition: opacity .3s var(--ease-out); }
+.ob-progress img.is-on { opacity: 1; }
+
+/* 단계 진입: 문구 → 기니알바 → 말풍선 → 글자 순서 */
+.ob-step.is-entering .ob-title { animation: rise .55s var(--ease-out) both; }
+.ob-step.is-entering .ob-desc  { animation: rise .55s var(--ease-out) .08s both; }
+.ob-step.is-entering .ob-pig   { animation: pig-in .7s var(--ease-spring) .18s both; }
+/* 말풍선이 튀어나온 뒤 글자가 찍히는 동안 말하듯 들썩인다 */
+.ob-step.is-entering .ob-bubble { animation: bubble-pop .42s var(--ease-spring) .78s both, talk .24s ease-in-out 1.2s 3; }
+.ob-step.is-leaving { visibility: visible; animation: step-out .28s var(--ease-out) forwards; }
+.ob-step.is-leaving .ob-pig { animation: pig-out .28s var(--ease-out) forwards; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes pig-in {
+  0%   { opacity: 0; transform: translateY(60px) scale(.88); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes pig-out { to { opacity: 0; transform: translateY(30px) scale(.94); } }
+@keyframes step-out { to { opacity: 0; } }
+@keyframes bubble-pop {
+  0%   { opacity: 0; transform: scale(.2) rotate(-8deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes talk { 50% { transform: scale(1.035) rotate(-1deg); } }
+@keyframes char-in {
+  0%   { opacity: 0; transform: translateY(6px) scale(.6); }
+  70%  { opacity: 1; transform: translateY(-2px) scale(1.12); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ---------- Roulette / Spinning / Result ---------- */
+.reel { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.reel-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 340px;  /* 결과 화면 크기로 그리고 JS가 칸마다 줄인다 */
+  height: 340px;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+/* 상품 사진은 캔버스의 90%를 차지하므로 92%로 그려 Figma 예시(상자 대비 82.8%)와 같은 크기로 맞춘다 */
+.reel-item img { position: absolute; left: 4%; top: 4%; width: 92%; height: 92%; display: block; object-fit: contain; }
+
+.machine-copy {
+  position: absolute;
+  left: 6px;
+  top: 180px;
+  width: 378px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  line-height: normal;
+  pointer-events: none;
+}
+.m-title { font-size: 70px; color: var(--ink); text-align: center; white-space: nowrap; }
+.m-sub { width: 100%; font-size: 22px; color: var(--ink-sub); text-align: center; white-space: nowrap; }
+.machine-copy.is-out .m-title,
+.machine-copy.is-out .m-sub { opacity: 0; transform: translateY(-8px); transition: opacity .14s ease-in, transform .14s ease-in; }
+.machine-copy.is-in .m-title { animation: title-pop .5s var(--ease-spring) both; }
+.machine-copy.is-in .m-sub { animation: rise .45s var(--ease-out) .06s both; }
+@keyframes title-pop { from { opacity: 0; transform: translateY(10px) scale(.86); } }
+
+/* 기니알바: 손잡이가 내려간 뒤 왼쪽 화면 밖에서 걸어 들어와 Figma 위치(115, 687)에 천천히 멈추고,
+   결과가 나오면 바라보는 방향(오른쪽)으로 계속 걸어 나간다. 걷기 프레임에 몸의 들썩임이 이미 들어 있다. */
+.walker {
+  position: absolute;
+  left: 115px;
+  top: 687px;
+  width: 160px;
+  height: 117px;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+}
+.machine[data-state="spinning"] .walker {
+  animation:
+    walker-move-in 1.3s cubic-bezier(.25, .6, .3, 1) .45s both,
+    walker-fade-in .3s linear .45s both;
+}
+.machine[data-state="result"] .walker {
+  animation:
+    walker-move-out 1.05s cubic-bezier(.4, 0, .7, .6) both,
+    walker-fade-out .35s linear .7s both;
+}
+@keyframes walker-move-in { from { transform: translateX(-275px); } to { transform: none; } }
+@keyframes walker-move-out { from { transform: none; } to { transform: translateX(290px); } }
+@keyframes walker-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes walker-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* 컨페티: Figma image 14 (left -496, top -119, 1371×1266, 이미지 높이 108.27%) */
+.confetti {
+  position: absolute;
+  left: -496px;
+  top: -119px;
+  width: 1371px;
+  height: 1266px;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+}
+.confetti img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 108.27%;
+  max-width: none;
+  display: block;
+  transform-origin: 691px 611px; /* 결과 상품 중심 */
+}
+.confetti.is-on { visibility: visible; }
+.confetti.is-on img {
+  animation:
+    confetti-burst .75s cubic-bezier(.16, 1.2, .3, 1) both,
+    confetti-fall 18s linear .75s forwards;
+}
+.confetti.is-on.is-off { opacity: 0; transition: opacity .3s ease-out; }
+@keyframes confetti-burst {
+  0%   { opacity: 0; transform: scale(.18) rotate(-10deg); }
+  35%  { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); }
+  25%  { transform: translateY(170px) rotate(.6deg); }
+  50%  { transform: translateY(380px) rotate(-.5deg); }
+  75%  { transform: translateY(620px) rotate(.4deg); opacity: 1; }
+  100% { transform: translateY(900px) rotate(0deg); opacity: 0; }
+}
+
+/* ---------- 머신 손잡이 (Figma div.toggle-container / div.toggle-handle) ---------- */
+.lever {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity .35s var(--ease-out), transform .5s var(--ease-out);
+}
+/* 당긴 손잡이는 튕겨 돌아가면서 아래로 내려가 사라지고, 결과가 나오면 기니알바가 지나간 뒤 다시 올라온다 */
+.machine[data-state="spinning"] .lever {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity .3s ease-in .3s, transform .35s ease-in .3s;
+}
+.machine[data-state="result"] .lever { transition-delay: .6s; }
+.machine[data-state="spinning"] .lever-hit { pointer-events: none; }
+
+.lever-base {
+  position: absolute;
+  left: 173.5px;  /* 중심 x 207.1 */
+  top: 761.78px;
+  width: 67.2px;
+  height: 21.6px;
+  border-radius: 60px;
+  background: linear-gradient(to bottom, #fff, #d7d7d7);
+  box-shadow: 0 -4.8px 9.6px 0 #fff, 0 4.8px 9.6px 0 #d7d7d7;
+}
+.lever-base::before {
+  content: "";
+  position: absolute;
+  inset: 4.8px;
+  border-radius: 60px;
+  background: linear-gradient(to bottom, #a6a6a6, #7d7d7d);
+  box-shadow:
+    inset 0 1.2px 0 0 rgba(255, 255, 255, .2),
+    inset 0 -.6px 0 0 #fff,
+    inset 0 -1.2px 4.8px 0 rgba(0, 0, 0, .1);
+}
+/* 막대 끝을 받침 홈 높이(y 772.5)에서 잘라 홈에 꽂힌 것처럼 */
+.lever-clip { position: absolute; left: 100px; top: 560px; width: 220px; height: 212.5px; overflow: hidden; }
+.lever-handle {
+  --a: -26.52deg;
+  --k: -2.97deg;
+  --press: 1;
+  position: absolute;
+  left: 88.8px;   /* 회전축(막대 아래 끝) x 205.6 */
+  top: 120.4px;   /* 회전축 y 771.6 */
+  width: 33.6px;
+  height: 91.2px;
+  transform-origin: 50% 100%;
+  transform: rotate(var(--a)) skewX(var(--k)) scaleY(var(--press));
+}
+.lever-bar {
+  position: absolute;
+  left: calc(50% + .49px);
+  top: 16.8px;
+  width: 9.599px;
+  height: 74.398px;
+  transform: translateX(-50%);
+  background-image: linear-gradient(90deg, #777475 0%, #a4a4a4 20%, #fff 45%, #fff 55%, #a4a4a4 80%, #777475 100%);
+  box-shadow: inset 0 19.2px 4.8px 0 rgba(0, 0, 0, .4);
+}
+.lever-knob {
+  position: absolute;
+  left: calc(50% + .49px);
+  top: -.01px;
+  width: 33.602px;
+  height: 33.607px;
+  border-radius: 16.8px;
+  transform: translateX(-50%) scale(var(--knob, 1));
+  transition: transform .12s var(--ease-out);
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 33.602 33.607' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%' width='100%' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(2.376 0 0 2.3764 16.801 16.804)'><stop stop-color='rgba(254,222,226,1)' offset='0.04'/><stop stop-color='rgba(244,180,183,1)' offset='0.06'/><stop stop-color='rgba(234,138,139,1)' offset='0.08'/><stop stop-color='rgba(224,95,96,1)' offset='0.1'/><stop stop-color='rgba(219,74,74,1)' offset='0.11'/><stop stop-color='rgba(214,53,52,1)' offset='0.12'/><stop stop-color='rgba(214,53,52,1)' offset='0.24'/><stop stop-color='rgba(168,26,26,1)' offset='0.5'/><stop stop-color='rgba(168,26,26,1)' offset='0.65'/><stop stop-color='rgba(214,53,52,1)' offset='0.75'/></radialGradient></defs></svg>");
+}
+.lever.is-pressed .lever-knob { --knob: .93; }
+
+.lever-hit {
+  position: absolute;
+  left: 140px;
+  top: 655px;
+  width: 130px;
+  height: 140px;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  border-radius: 24px;
+}
+.lever-hit:active { cursor: grabbing; }
+.lever-hit:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .blob, .blob img, .splash-cta { animation: none; }
+  .ob-step.is-entering .ob-title,
+  .ob-step.is-entering .ob-desc,
+  .ob-step.is-entering .ob-pig,
+  .ob-step.is-entering .ob-bubble { animation-duration: .01s; animation-delay: 0s; }
+  .confetti.is-on img { animation: confetti-burst .01s both; }
+  .machine[data-state="spinning"] .walker { animation: walker-fade-in .3s linear both; }
+  .machine[data-state="result"] .walker { animation: walker-fade-out .3s linear both; }
+}

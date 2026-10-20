@@ -1,0 +1,5 @@
+# Cloudflare Pages 응답 헤더: 개인용이라 이미지까지 모든 파일을 검색엔진에서 제외한다.
+# robots.txt로 크롤링을 막으면 noindex를 읽지 못하므로 막지 않는다.
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko" class="is-loading">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f6f660">
+<title>다먹을기니?</title>
+<link rel="preload" href="assets/fonts/LOTTERIACHAB.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="frame">
+<main class="stage" id="stage">
+
+  <!-- Splash (Figma 11611:5554) -->
+  <section class="screen splash is-active" id="splash" aria-label="시작 화면">
+    <div class="splash-text">
+      <h1 class="splash-title">다먹을기니?</h1>
+      <p class="splash-cta">Tap to start &gt;</p>
+    </div>
+    <div class="blob blob-top" aria-hidden="true"><img src="assets/figma/ellipse-top.svg" alt="" width="615" height="615"></div>
+    <div class="blob blob-bottom" aria-hidden="true"><img src="assets/figma/ellipse-bottom.svg" alt="" width="615" height="615"></div>
+  </section>
+
+  <!-- Onboarding1~3 (Figma 11611:5555, 11611:5556, 11611:5557) -->
+  <section class="screen onboarding" id="onboarding" aria-label="사용 안내">
+    <article class="ob-step" data-step="1">
+      <div class="ob-copy">
+        <h2 class="ob-title">다먹을기니?</h2>
+        <p class="ob-desc">기니알바와 함께<br>점심 메뉴를 골라봐요 *</p>
+      </div>
+      <img class="ob-pig" src="assets/guinea/success-640.webp"
+           srcset="assets/guinea/success-320.webp 320w, assets/guinea/success-640.webp 640w, assets/guinea/success-980.webp 980w"
+           sizes="326px" width="326" height="326" alt="기뻐하는 기니알바">
+      <div class="ob-bubble">
+        <img src="assets/figma/bubble.svg" alt="" width="177" height="128.557">
+        <p data-say="CU에서 골라봐!"></p>
+      </div>
+    </article>
+    <article class="ob-step" data-step="2">
+      <div class="ob-copy">
+        <h2 class="ob-title">돌릴기니?</h2>
+        <p class="ob-desc">기니알바와 룰렛을 돌려보자<br>어떤 메뉴가 나올까..? *</p>
+      </div>
+      <img class="ob-pig" src="assets/guinea/point-up-640.webp"
+           srcset="assets/guinea/point-up-320.webp 320w, assets/guinea/point-up-640.webp 640w, assets/guinea/point-up-980.webp 980w"
+           sizes="326px" width="326" height="326" alt="위를 가리키는 기니알바">
+      <div class="ob-bubble">
+        <img src="assets/figma/bubble.svg" alt="" width="177" height="128.557">
+        <p data-say="재밌겠다.."></p>
+      </div>
+    </article>
+    <article class="ob-step" data-step="3">
+      <div class="ob-copy">
+        <h2 class="ob-title">어떡할기니?</h2>
+        <p class="ob-desc">기니알바는 가끔 실수할 수 있어<br>마음에 안들면 다시 돌리자 *</p>
+      </div>
+      <img class="ob-pig" src="assets/guinea/failure-640.webp"
+           srcset="assets/guinea/failure-320.webp 320w, assets/guinea/failure-640.webp 640w, assets/guinea/failure-980.webp 980w"
+           sizes="320px" width="320" height="320" alt="시무룩한 기니알바">
+      <div class="ob-bubble">
+        <img src="assets/figma/bubble.svg" alt="" width="177" height="128.557">
+        <p data-say="맘에 안들어?.."></p>
+      </div>
+    </article>
+    <div class="ob-progress" aria-hidden="true">
+      <img data-step="1" src="assets/figma/progress-1.svg" alt="" width="50" height="14">
+      <img data-step="2" src="assets/figma/progress-2.svg" alt="" width="50" height="14">
+      <img data-step="3" src="assets/figma/progress-3.svg" alt="" width="50" height="14">
+    </div>
+  </section>
+
+  <!-- Roulette / Spinning / Result (Figma 11611:5558, 11614:6750, 11614:6693) -->
+  <section class="screen machine" id="machine" data-state="idle" aria-label="메뉴 룰렛">
+    <div class="confetti" id="confetti" aria-hidden="true">
+      <img src="assets/figma/confetti.webp" alt="" width="2278" height="2278">
+    </div>
+    <div class="reel" id="reel" aria-hidden="true"></div>
+    <div class="machine-copy" id="machineCopy">
+      <h2 class="m-title" id="mTitle">뭐먹을기니?</h2>
+      <p class="m-sub" id="mSub">룰렛을 돌려봐!</p>
+    </div>
+    <img class="walker" id="walker" src="assets/guinea/loading-walk.webp" width="480" height="352" alt="" aria-hidden="true">
+    <div class="lever" id="lever">
+      <div class="lever-base" aria-hidden="true"></div>
+      <div class="lever-clip" aria-hidden="true">
+        <div class="lever-handle" id="leverHandle">
+          <div class="lever-bar"></div>
+          <div class="lever-knob"></div>
+        </div>
+      </div>
+      <div class="lever-hit" id="leverHit" role="button" tabindex="0" aria-label="손잡이를 당겨 룰렛 돌리기"></div>
+    </div>
+    <p class="sr-only" id="announce" aria-live="polite"></p>
+  </section>
+
+</main>
+</div>
+<script src="js/menu.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
